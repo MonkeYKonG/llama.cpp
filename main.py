@@ -37,22 +37,11 @@ def get_default_llama_context():
 
 
 if __name__ == "__main__":
-    a = (ctypes.c_int * 100)(*range(100))
-
-    print(a[0])
-    print(a[1])
-
-    print(id(a[0]))
-    print(id(a[1]))
-    print(id(a[2]))
-
-    exit(0)
-
     # Load shared library from ctypes
     libname = pathlib.Path().absolute() / 'libllama.so'
     models_path = 'models/7B/ggml-model-q4_0.bin'.encode()
     c_lib = ctypes.CDLL(libname)
-    prompt = ' '
+    prompt = 'This is a letter from Alexis to his old mom\n\nDear mom,\n\n'
     n_keep = len(prompt) + 1
 
     c_lib.llama_init_from_file.restype = ctypes.c_void_p
@@ -121,25 +110,24 @@ if __name__ == "__main__":
     n_consume = 0
 
     buffer = (ctypes.c_int * 256)(*prompt_res)
-    buffer_size = 2
+    buffer_size = input_size
 
-    py_last_n_token = [0] * 512
+    py_last_n_token = [0] * 64
 
     is_interacting = False
 
+    generated = ''
+
     while n_remains > 0:
-        last_n_token = (ctypes.c_int * 512)(*py_last_n_token)
+        last_n_token = (ctypes.c_int * 64)(*py_last_n_token)
         result = c_lib.llama_eval(model_context, buffer, buffer_size, n_past, 2)
-        print('Eval ok', result)
         if result != 0:
             raise Exception('Eval fail')
 
         # logits = c_lib.llama_get_logits(model_context)
         token_id = c_lib.llama_sample_top_p_top_k(
             model_context,
-            # ctypes.POINTER(ctypes.c_int)(ctypes.c_int(id(last_n_token[n_ctx - 64]))),
-            # ctypes.POINTER(ctypes.c_int)(ctypes.c_int(id(last_n_token[n_ctx - 64]))),
-            ctypes.addressof(last_n_token[n_ctx - 64]),
+            last_n_token,
             64,
             40,
             0.95,
@@ -155,6 +143,9 @@ if __name__ == "__main__":
 
         token_bytes = c_lib.llama_token_to_str(model_context, token_id)
 
-        print(f'{token_id} => {token_bytes} - {token_bytes.decode("utf-8")}')
+        print(f'({n_remains}) {token_id} => {token_bytes} - {token_bytes.decode("utf-8")}')
+        generated += token_bytes.decode('utf-8')
 
         n_remains -= 1
+        n_past += 1
+    print(generated)

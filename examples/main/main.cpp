@@ -99,8 +99,6 @@ int main(int argc, char ** argv) {
         lparams.f16_kv     = params.memory_f16;
         lparams.use_mlock  = params.use_mlock;
 
-        fprintf(stdout, "%i %i %i %i %i\n", params.n_ctx ,params.n_parts, params.seed, params.memory_f16, params.use_mlock);
-
         ctx = llama_init_from_file(params.model.c_str(), lparams);
 
         if (ctx == NULL) {
@@ -266,12 +264,6 @@ int main(int argc, char ** argv) {
                 //printf("\n---\n");
             }
 
-            fprintf(stdout, "Before evaluate:\n");
-            for (int i = 0; i < embd.size(); ++i) {
-                fprintf(stdout, "%i => %i\n", i, embd[i]);
-            }
-            fprintf(stdout, "n_past %i\n", n_past);
-
             if (llama_eval(ctx, embd.data(), embd.size(), n_past, params.n_threads)) {
                 fprintf(stderr, "%s : failed to eval\n", __func__);
                 return 1;
@@ -281,10 +273,7 @@ int main(int argc, char ** argv) {
         n_past += embd.size();
         embd.clear();
 
-        fprintf(stdout, "before %i %i\n", embd.size(), last_n_tokens.size());
-
         if ((int) embd_inp.size() <= n_consumed && !is_interacting) {
-            fprintf(stdout, "On if\n");
             // out of user input, sample next token
             const int32_t top_k          = params.top_k;
             const float   top_p          = params.top_p;
@@ -327,7 +316,6 @@ int main(int argc, char ** argv) {
             // decrement remaining sampling budget
             --n_remain;
         } else {
-            fprintf(stdout, "On else\n");
             // some user input remains from prompt or interaction, forward it to processing
             while ((int) embd_inp.size() > n_consumed) {
                 embd.push_back(embd_inp[n_consumed]);
@@ -340,12 +328,10 @@ int main(int argc, char ** argv) {
             }
         }
 
-        fprintf(stdout, "after %i %i\n", embd.size(), last_n_tokens.size());
-
         // display text
         if (!input_noecho) {
             for (auto id : embd) {
-                printf("Write: %i => %s\n", id, llama_token_to_str(ctx, id));
+                printf("%s", llama_token_to_str(ctx, id));
             }
             fflush(stdout);
         }
