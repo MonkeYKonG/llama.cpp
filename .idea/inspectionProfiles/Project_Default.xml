@@ -1,0 +1,52 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E402" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="vehicle.models.Vehicle.objects" />
+          <option value="vehicle.models.ConnectedVehicle.objects" />
+          <option value="api.models.User.DoesNotExist" />
+          <option value="api.models.Credentials.objects" />
+          <option value="api.models.Credentials.DoesNotExist" />
+          <option value="api.models.LexicalField.objects" />
+          <option value="api.models.Word.objects" />
+          <option value="api.models.InfinitiveVerb.objects" />
+          <option value="api.models.VerbTemporal.objects" />
+          <option value="api.models.ConjugatedVerb.objects" />
+          <option value="api.models.Sentence.objects" />
+          <option value="YegoDjangoStandalone.db.models.DocumentCheck.objects" />
+          <option value="api.models.Location.objects" />
+          <option value="api.models.ActionHistory.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.Zone.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.Location.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.ActionHistory.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.Draft.objects" />
+          <option value="django.db.models.base.Model.objects" />
+          <option value="backend.models.Room.objects" />
+          <option value="backend.models.Room.DoesNotExist" />
+          <option value="corsheaders.defaults" />
+          <option value="api.models.Vehicle.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.YegoUser.objects" />
+          <option value="streetStaffTools.Aeropolis.api.models.Parking.objects" />
+          <option value="api.choices.TextChoicesMaxLen.choices" />
+          <option value="api.models.Parking.objects" />
+          <option value="api.models.YegoUser.objects" />
+          <option value="api.models.Zone.objects" />
+          <option value="api.models.Draft.objects" />
+          <option value="api.models.Draft.DoesNotExist" />
+          <option value="api.models.ParkingStore.objects" />
+          <option value="SQL.models.ConnectedVehicles.objects" />
+          <option value="SQL.models.Vehicles.objects" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

@@ -33,7 +33,7 @@ endif
 # keep standard at C11 and C++11
 CFLAGS   = -I.              -O3 -DNDEBUG -std=c11   -fPIC
 CXXFLAGS = -I. -I./examples -O3 -DNDEBUG -std=c++11 -fPIC
-LDFLAGS  =
+LDFLAGS  = 
 
 # warnings
 CFLAGS   += -Wall -Wextra -Wpedantic -Wcast-qual -Wdouble-promotion -Wshadow -Wstrict-prototypes -Wpointer-arith -Wno-unused-function
@@ -132,7 +132,7 @@ $(info I CC:       $(CCV))
 $(info I CXX:      $(CXXV))
 $(info )
 
-default: main quantize perplexity embedding
+default: main quantize perplexity embedding libllama.so
 
 #
 # Build library
@@ -148,7 +148,10 @@ common.o: examples/common.cpp examples/common.h
 	$(CXX) $(CXXFLAGS) -c examples/common.cpp -o common.o
 
 clean:
-	rm -vf *.o main quantize perplexity embedding
+	rm -vf *.o main quantize perplexity embedding libllama.so
+
+libllama.so: ggml.o llama.o
+	$(CXX) $(CXXFLAGS) ggml.o llama.o -o libllama.so -shared
 
 main: examples/main/main.cpp ggml.o llama.o common.o
 	$(CXX) $(CXXFLAGS) examples/main/main.cpp ggml.o llama.o common.o -o main $(LDFLAGS)
