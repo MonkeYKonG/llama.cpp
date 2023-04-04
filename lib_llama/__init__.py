@@ -16,6 +16,9 @@ class ModelContext:
     @staticmethod
     def eof_token():
         return c_lib.llama_token_eos()
+    
+    def free(self):
+        c_lib.llama_free(self._model_context_ptr)
 
     def tokenize(self, text: str, new_line: bool = True):
         n_ctx = c_lib.llama_n_ctx(self._model_context_ptr)
@@ -55,3 +58,9 @@ class ModelContext:
             0.8,
             1.1,
         )
+
+    def get_logits(self):
+        return c_lib.llama_get_logits(self._model_context_ptr)
+    
+    def get_n_ctx(self):
+        return c_lib.llama_n_ctx(self._model_context_ptr)

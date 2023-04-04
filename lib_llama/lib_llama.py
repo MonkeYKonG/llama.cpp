@@ -52,3 +52,5 @@ c_lib.llama_sample_top_p_top_k.argtypes = [
 
 c_lib.llama_token_eos.restype = ctypes.c_int
 c_lib.llama_token_eos.argtypes = []
+
+c_lib.llama_free.argtypes = [ctypes.c_void_p]

@@ -39,6 +39,10 @@ LDFLAGS  =
 CFLAGS   += -Wall -Wextra -Wpedantic -Wcast-qual -Wdouble-promotion -Wshadow -Wstrict-prototypes -Wpointer-arith -Wno-unused-function
 CXXFLAGS += -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function
 
+# debug
+CFLAGS   += -g
+CXXFLAGS += -g
+
 # OS specific
 # TODO: support Windows
 ifeq ($(UNAME_S),Linux)

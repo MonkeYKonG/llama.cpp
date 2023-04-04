@@ -20,16 +20,25 @@ LLaMAContextParams._fields_ = [
 ]
 
 
-def get_default_llama_context():
+def get_default_llama_context(
+    n_ctx=1024,
+    n_parts=-1,
+    seed=int(time.time()),
+    f16_kv=True,
+    logits_all=False,
+    vocab_only=False,
+    use_mlock=False,
+    embedding=False,
+):
     return LLaMAContextParams(
-        n_ctx=512,
-        n_parts=-1,
-        seed=int(time.time()),
-        f16_kv=True,
-        logits_all=False,
-        vocab_only=False,
-        use_mlock=False,
-        embedding=False,
+        n_ctx=n_ctx,
+        n_parts=n_parts,
+        seed=seed,
+        f16_kv=f16_kv,
+        logits_all=logits_all,
+        vocab_only=vocab_only,
+        use_mlock=use_mlock,
+        embedding=embedding,
         progres_callback=None,
         progress_callback_user_data=None,
     )
