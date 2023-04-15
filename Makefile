@@ -155,7 +155,7 @@ clean:
 	rm -vf *.o main quantize perplexity embedding libllama.so
 
 libllama.so: ggml.o llama.o
-	$(CXX) $(CXXFLAGS) ggml.o llama.o -o libllama.so -shared
+	$(CXX) $(CXXFLAGS) ggml.o llama.o -o libllama.so -shared $(LDFLAGS)
 
 main: examples/main/main.cpp ggml.o llama.o common.o
 	$(CXX) $(CXXFLAGS) examples/main/main.cpp ggml.o llama.o common.o -o main $(LDFLAGS)

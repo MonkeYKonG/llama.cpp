@@ -5,13 +5,13 @@ import lib_llama
 
 class PyLLaMA:
     def __init__(
-            self, 
-            model_path, 
-            n_ctx=512, 
-            last_token_count=64,
-            max_generation=512,
-            eval_thread_count=8,
-        ):
+        self,
+        model_path,
+        n_ctx=512,
+        last_token_count=64,
+        max_generation=512,
+        eval_thread_count=4,
+    ):
         self._model_path = model_path
         self.model_context = lib_llama.ModelContext.init_from_file(
             self._model_path,
@@ -28,16 +28,24 @@ class PyLLaMA:
         self.eval_thread_count = eval_thread_count
         self.prompt = None
 
+        self._header_token = None
+
     def __del__(self):
         self.model_context.free()
 
     def _evaluate(self):
+        prompt_size = len(self.prompt)
+
+        if self.n_past + prompt_size > self.n_ctx:
+            self.prompt = self._header_token + self.last_token + self.prompt
+            self.n_past = 0
+            prompt_size = len(self.prompt)
+
         self.model_context.eval(
-            self.prompt, 
-            self.n_past, 
+            self.prompt,
+            self.n_past,
             self.eval_thread_count,
         )
-        prompt_size = len(self.prompt)
         self.n_past += prompt_size
         self.last_token[:] = self.last_token[prompt_size:] + self.prompt
         self.prompt = None
@@ -50,11 +58,13 @@ class PyLLaMA:
     def set_header(self, header: str):
         self.n_past = 0
         self.prompt = self.model_context.tokenize(header)
+        self._header_token = self.prompt.copy()
         self.n_keep = len(self.prompt)
         self._evaluate()
 
     def send_input(self, input: str):
-        self.prompt = self.model_context.tokenize('\n\n' + input + '\n\n', new_line=False)
+        self.prompt = self.model_context.tokenize(
+            '\n\n' + input + '\n\n', new_line=False)
         self._evaluate()
 
     def predict_next(self):
