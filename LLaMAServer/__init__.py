@@ -38,8 +38,12 @@ def initialze_model(sid, data):
     llama[sid] = PyLLaMA(
         'models/GPT4All/gpt4all-lora-quantized-new.bin',
     )
-    llama[sid].set_header('Below is an instruction that describes a task. Write a response that appropriately completes the request.')
-    return {}
+    llama[sid].set_header(
+        'Below is an instruction that describes a task. Write a response that appropriately completes the request.',
+    )
+    return {
+        'header': llama[sid].header,
+    }
 
 
 @sio.on('set-header')
@@ -50,7 +54,9 @@ def set_header(sid, data):
     if header is None:
         return {}
     llama[sid].set_header(header)
-    return {}
+    return {
+        'header': llama[sid].header,
+    }
 
 
 async def do_predict(sid, user_input: str):

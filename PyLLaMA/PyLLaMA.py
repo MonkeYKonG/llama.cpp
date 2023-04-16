@@ -28,6 +28,7 @@ class PyLLaMA:
         self.eval_thread_count = eval_thread_count
         self.prompt = None
 
+        self.header = None
         self._header_token = None
 
     def __del__(self):
@@ -36,9 +37,9 @@ class PyLLaMA:
     def _evaluate(self):
         prompt_size = len(self.prompt)
 
-        if self.n_past + prompt_size > self.n_ctx:
-            self.prompt = self._header_token + self.last_token + self.prompt
-            self.n_past = 0
+        if self.n_past + prompt_size >= self.n_ctx:
+            self.prompt = self.last_token + self.prompt
+            self.n_past = self.n_keep
             prompt_size = len(self.prompt)
 
         self.model_context.eval(
@@ -47,7 +48,8 @@ class PyLLaMA:
             self.eval_thread_count,
         )
         self.n_past += prompt_size
-        self.last_token[:] = self.last_token[prompt_size:] + self.prompt
+        self.last_token[:] = self.last_token[prompt_size:] + \
+            self.prompt[-self.last_token_count:]
         self.prompt = None
 
     def _generate(self):
@@ -56,6 +58,7 @@ class PyLLaMA:
         )
 
     def set_header(self, header: str):
+        self.header = header
         self.n_past = 0
         self.prompt = self.model_context.tokenize(header)
         self._header_token = self.prompt.copy()
