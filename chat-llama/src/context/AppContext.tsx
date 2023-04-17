@@ -1,4 +1,9 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import { DiscussionItem, Sources } from "../constants/Types";
 import SocketManager from "../services/Websocket";
@@ -10,9 +15,18 @@ interface AppContextContent {
   discussion: DiscussionItem[];
   currentlyGenerated?: DiscussionItem;
   addMessage: (target: Sources, text?: string) => void;
+  reset: () => void;
+  setOptions: (header: string, instruction: string, answer: string) => void;
 
   readyForInput: boolean;
   setReadyForInput: (readyForInput: boolean) => void;
+
+  header: string;
+  instructionPrefix: string;
+  answerPrefix: string;
+  setHeader: (header: string) => void;
+  setInstructionPrefix: (instructionPRefix: string) => void;
+  setAnswerPrefix: (answerPrefix: string) => void;
 };
 
 export const AppContext = createContext<AppContextContent>({
@@ -20,8 +34,16 @@ export const AppContext = createContext<AppContextContent>({
   initialized: false,
   discussion: [],
   addMessage: () => { },
+  reset: () => { },
+  setOptions: () => { },
   readyForInput: false,
   setReadyForInput: () => { },
+  header: '',
+  instructionPrefix: '',
+  answerPrefix: '',
+  setHeader: () => { },
+  setInstructionPrefix: () => { },
+  setAnswerPrefix: () => { },
 });
 
 export const AppContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -30,6 +52,9 @@ export const AppContextProvider: React.FC<React.PropsWithChildren> = ({ children
   const [connected, setConnected] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [readyForInput, setReadyForInput] = useState(true);
+  const [header, setHeader] = useState('');
+  const [instructionPrefix, setInstructionPrefix] = useState('');
+  const [answerPrefix, setAnswerPrefix] = useState('');
 
   const addMessage = useCallback((source: Sources, text?: string) => {
     console.log('add message', discussion);
@@ -42,9 +67,39 @@ export const AppContextProvider: React.FC<React.PropsWithChildren> = ({ children
     ])
   }, [discussion]);
 
+  const reset = useCallback(() => {
+    setDiscussion([]);
+    setInitialized(false);
+    SocketManager.reset()
+      .then(() => {
+        setInitialized(true);
+      });
+  }, []);
+
+  const setOptions = useCallback((
+    header: string,
+    instruction: string,
+    answer: string,
+  ) => {
+    setDiscussion([]);
+    setInitialized(false);
+    SocketManager.setHeader(header, instruction, answer)
+      .then((result) => {
+        setHeader(result.header);
+        setInstructionPrefix(result.instruction);
+        setAnswerPrefix(result.answer);
+        setInitialized(true);
+      });
+  }, []);
+
   const handleSocketConnect = () => {
     SocketManager.initialize()
-      .then(() => { setInitialized(true) });
+      .then((result) => {
+        setInitialized(true);
+        setHeader(result.header);
+        setInstructionPrefix(result.instruction);
+        setAnswerPrefix(result.answer);
+      });
     setConnected(true);
   };
 
@@ -105,8 +160,16 @@ export const AppContextProvider: React.FC<React.PropsWithChildren> = ({ children
         discussion,
         currentlyGenerated,
         addMessage,
+        reset,
+        setOptions,
         readyForInput,
         setReadyForInput,
+        header,
+        instructionPrefix,
+        answerPrefix,
+        setHeader,
+        setInstructionPrefix,
+        setAnswerPrefix,
       }}
     >
       {children}

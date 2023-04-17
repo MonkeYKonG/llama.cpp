@@ -1,5 +1,3 @@
-import ctypes
-
 import lib_llama
 
 
@@ -21,7 +19,7 @@ class PyLLaMA:
         self.eof_token = self.model_context.eof_token()
 
         self.last_token_count = last_token_count
-        self.last_token = [0] * self.last_token_count
+        self.last_token = self._get_default_last_tokens()
         self.n_past = 0
         self.n_keep = 0
         self.max_generation = max_generation
@@ -29,7 +27,10 @@ class PyLLaMA:
         self.prompt = None
 
         self.header = None
-        self._header_token = None
+        self.instruction_prefix = None
+        self.instruction_tokens = None
+        self.answer_prefix = None
+        self.answer_tokens = None
 
     def __del__(self):
         self.model_context.free()
@@ -57,17 +58,33 @@ class PyLLaMA:
             self.last_token,
         )
 
+    def _get_default_last_tokens(self):
+        return [0] * self.last_token_count
+
+    def reset(self):
+        self.n_past = self.n_keep
+        self.last_token = self._get_default_last_tokens()
+
     def set_header(self, header: str):
         self.header = header
         self.n_past = 0
         self.prompt = self.model_context.tokenize(header)
-        self._header_token = self.prompt.copy()
         self.n_keep = len(self.prompt)
         self._evaluate()
 
+    def set_configs(self, intruction_prefix: str, answer_prefix: str):
+        self.instruction_prefix = intruction_prefix
+        self.answer_prefix = answer_prefix
+        self.instruction_tokens = self.model_context.tokenize(
+            self.instruction_prefix, new_line=False)
+        self.answer_tokens = self.model_context.tokenize(
+            self.answer_prefix, new_line=False)
+
     def send_input(self, input: str):
         self.prompt = self.model_context.tokenize(
-            '\n\n' + input + '\n\n', new_line=False)
+            f'\n\n{self.instruction_prefix}\n{input}\n\n{self.answer_prefix}\n',
+            new_line=False,
+        )
         self._evaluate()
 
     def predict_next(self):
@@ -77,5 +94,4 @@ class PyLLaMA:
             return None
         self.prompt = [token_id]
         next_str = self.model_context.token_to_str(token_id)
-        # self.text += next_str
         return next_str

@@ -9,8 +9,6 @@ import { textInputHeight } from "../constants/TextInput";
 import Discussion from "./Discussion";
 import TextInput from "./TextInput";
 
-
-
 const Chat: React.FC = () => (
   <Stack
     direction='column'

@@ -1,20 +1,15 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
 import {
   Box,
   CSSObject,
   Card,
   CardContent,
-  CardHeader,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
   Stack,
   Typography,
 } from "@mui/material";
 import { AppContext } from "../context/AppContext";
-import SocketManager from "../services/Websocket";
 
 interface InputCardProps {
   content: string;
@@ -52,6 +47,18 @@ const Discussion: React.FC = () => {
     isConnected,
     initialized,
   } = useContext(AppContext);
+  const divRef = useRef<HTMLDivElement>();
+
+  const scrollBottom = () => {
+    if (divRef.current) {
+      divRef.current.scrollTop = divRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    // TODO: Limit effect to only when already on bot
+    scrollBottom();
+  }, [divRef.current?.scrollHeight, discussion.length]);
 
   if (!isConnected || !initialized) {
     return (
@@ -93,9 +100,11 @@ const Discussion: React.FC = () => {
 
   return (
     <Box
+      ref={divRef}
       sx={{
         ...boxMixins,
         overflow: 'auto',
+        scrollBehavior: 'smooth',
         '& ul': { padding: 0 },
       }}
     >
